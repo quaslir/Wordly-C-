@@ -5,8 +5,8 @@
 #include <fstream>
 #include <vector>
 #include <random>
-#include "colors.hpp"
 #include "wordly.hpp"
+#include "raylib.h"
 std::random_device rd;
 std::mt19937 gen(rd());
 enum Type {CORRECT_POS, INCORRECT_POS, NOT_IN};
@@ -68,10 +68,10 @@ class Wordly {
         for(const auto & y : this->history) {
             for(const auto &x : y) {
             if(x.type == CORRECT_POS) {
-                std::cout << Color::green << x.c << Color::reset;
+                std::cout  << x.c;
             }
             else if(x.type == INCORRECT_POS) {
-                std::cout << Color::yellow << x.c << Color::reset;
+                std::cout << x.c ;
             }
 
             else {
@@ -82,7 +82,6 @@ class Wordly {
     }
     }
     public :
-    
     std::string word;
     Wordly(std::istream & s) : ss(s), attempts(0) {
         this->parseFile();
@@ -101,33 +100,31 @@ class Wordly {
         wordChecker(str);
         }
 };
+ void draw(void) {
+       for(size_t i = 1; i < 6; i++) {
+        for(size_t j = 1; j < 5; j++) {
+        float calculateX = (float) (j * 70 * 1.1);
+        float calculateY =  (float) (i * 70 * 1.1);
 
+        Rectangle box = {(float) calculateX,calculateY, 70, 70};
+
+        float thickness = 3.0f;
+
+        DrawRectangleLinesEx(box, thickness, GREEN);
+       }
+       }
+    }
 int main(int argc, char * argv[]) {
-    clearScreen();
-    std::cout << Color::violet;
-    std::cout << R"(                       _ _                             
-__      _____  _ __ __| | |_   _        ___  _     _   
-\ \ /\ / / _ \| '__/ _` | | | | |_____ / __|| |_ _| |_ 
- \ V  V / (_) | | | (_| | | |_| |_____| (_|_   _|_   _|
-  \_/\_/ \___/|_|  \__,_|_|\__, |      \___||_|   |_|  
-                           |___/                       
-)";
-std::cout << Color::reset;
-    if(argc < 2) {
-        std::cerr << "File was not provided" << std::endl;
-        return 1;
-    }
-    std::ifstream file (argv[1]);
-    if(!file.is_open()) {
-        std::cerr << "File could not be found" << std::endl;
-        return 1;
-    }
+    InitWindow(500, 500, "Worldy-C++");
+    SetTargetFPS(120);
 
-    Wordly wordly (file);
-    bool gameOver = false;
-    std::cout << wordly.word << std::endl;
-    while(!gameOver) {
-        wordly.input();
-    }
+    while(!WindowShouldClose()) {
+        BeginDrawing();
+        DrawText("Wordly-C++",140,5,32,GREEN);
+            ClearBackground(BLACK);
+        draw();
+        EndDrawing();
+}
+CloseWindow();
     return 0;
 } 
