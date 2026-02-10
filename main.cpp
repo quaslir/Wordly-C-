@@ -7,6 +7,7 @@
 #include <random>
 #include "wordly.hpp"
 #include "raylib.h"
+#include <array>
 std::random_device rd;
 std::mt19937 gen(rd());
 enum Type {CORRECT_POS, INCORRECT_POS, NOT_IN};
@@ -24,7 +25,8 @@ class Wordly {
     size_t attempts;
     std::vector<Character> w;
     std::vector<std::vector<Character>> history;
-
+    int activeX = 0;
+    int activeY = 0;
     bool isEmpty(std::string_view str) {
         return str.empty() || str.find_first_not_of(" \t\r\n") == std::string::npos;
     }
@@ -117,14 +119,30 @@ class Wordly {
 int main(int argc, char * argv[]) {
     InitWindow(500, 500, "Worldy-C++");
     SetTargetFPS(120);
-
+    std::string buffer;
     while(!WindowShouldClose()) {
         BeginDrawing();
         DrawText("Wordly-C++",140,5,32,GREEN);
             ClearBackground(BLACK);
         draw();
+
+        int key = GetCharPressed();
+        while(key > 0) {
+            if((key >= 32) && (key <= 125) && (buffer.length() < 5)) {
+            buffer += (char) key;
+            
+            }
+            key = GetCharPressed();
+        }
+
+        if(buffer.length() == 5 && IsKeyPressed(KEY_ENTER)){
+            std::cout << buffer << std::endl;
+            buffer.clear();
+        }
         EndDrawing();
+        
 }
 CloseWindow();
+std::cout << buffer << std::endl;
     return 0;
 } 
