@@ -134,6 +134,11 @@ void backspace(void) {
 
 }
 
+void gameOverScreenRenderer(void) {
+    std::string text = "You guessed the word by " + std::to_string(attempts) + " attempts!";
+    DrawText(text.c_str(), 10, 10, 40, GREEN);
+}
+
 };
 
 int main(int argc, char * argv[]) {
