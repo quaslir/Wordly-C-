@@ -24,7 +24,6 @@ class Wordly {
     std::vector<std::string> rs;
     std::istream & ss;
     size_t attempts = 0;
-    std::array<Character, 5> w;
     std::array<std::array<Character, 5>, 6> history;
     int activeX = 0;
     int activeY = 0;
@@ -54,43 +53,48 @@ class Wordly {
             rs.push_back(buffer);
          }
     }
-    void print(void) {
-        clearScreen();
-        for(const auto & y : this->history) {
-            for(const auto &x : y) {
-            if(x.type == CORRECT_POS) {
-                std::cout  << x.c << " ";
-            }
-            else if(x.type == INCORRECT_POS) {
-                std::cout << x.c  << " ";
-            }
-
-            else {
-                std::cout << x.c  << " ";
-            }
+    bool lengthChecker(void) {
+        for(const auto &c : history[activeY]) {
+            if(!isalpha(c.c)) return false;
         }
-        std::cout << std::endl;
+
+        return true;
     }
+    Color getColor(const Type & t)const {
+        switch(t) {
+            case INCORRECT_POS :
+            return YELLOW;
+
+            case CORRECT_POS :
+            return GREEN;
+        }
+        return GRAY;
     }
     public :
     std::string word;
-        bool wordChecker(std::string_view wr) {
-            this->w.fill(Character());
+        bool wordChecker(void) {
+            if(!lengthChecker()) return false;
+            std::string toCheck;
         size_t idx = 0;
-        for(const auto & c : wr) {
-            if(this->word.find(c) == std::string::npos) this->w[idx] = Character(c, NOT_IN);
-            else if(this->word[idx] == c) this->w[idx] = Character(c, CORRECT_POS);
-            else this->w[idx] = Character(c, INCORRECT_POS);
+        for(auto & c : history[activeY]) {
+            if(this->word.find(c.c) == std::string::npos) c.type = NOT_IN;
+            else if(this->word[idx] == c.c) c.type  = CORRECT_POS;
+            else c.type = INCORRECT_POS;
             idx++;
+            toCheck += c.c;
         }
-        this->history[attempts++] = w;
-        this->print();
+        activeX = 0;
+        if(activeY < 6) {
+             activeY++;
+        }
+       
 
-        return true;
+        return toCheck == word;
     }
     Wordly(std::istream & s) : ss(s), attempts(0) {
         this->parseFile();
         this->getRandomWord();
+        std::cout << word << std::endl;
     }
 
  void draw(void) {
@@ -106,13 +110,29 @@ class Wordly {
             Vector2 textSize = MeasureTextEx(GetFontDefault(), buf.c_str(), 40.f, 2);
             float textX = box.x + (box.width / 2) - (textSize.x / 2);
             float textY = box.y + (box.height / 2) - (textSize.y / 2);
-            DrawText(buf.c_str(), (int) textX, (int) textY, 40, RED);
+            DrawText(buf.c_str(), (int) textX, (int) textY, 40, getColor(c.type));
         float thickness = 3.0f;
 
         DrawRectangleLinesEx(box, thickness, GREEN);
        }
        }
     }
+
+void updateCurrentWord(const char & c) {
+if(activeX < 5 && activeY < 6) {
+history[activeY][activeX] = Character(c, NOT_IN);
+activeX++;
+}
+
+}
+
+void backspace(void) {
+    if(activeX > 0) {
+        activeX--;
+        history[activeY][activeX] = Character(' ', NOT_IN);
+    }
+
+}
 
 };
 
@@ -121,7 +141,6 @@ int main(int argc, char * argv[]) {
     Wordly wordly (file);
     InitWindow(500, 500, "Worldy-C++");
     SetTargetFPS(120);
-    std::string buffer;
     while(!WindowShouldClose()) {
         BeginDrawing();
         //DrawText("Wordly-C++",140,5,32,GREEN);
@@ -130,21 +149,21 @@ int main(int argc, char * argv[]) {
 
         int key = GetCharPressed();
         while(key > 0) {
-            if((key >= 32) && (key <= 125) && (buffer.length() < 5)) {
-            buffer += (char) key;
-            
+            if((key >= 32) && (key <= 125)) {
+            wordly.updateCurrentWord((char) key);
+   
             }
             key = GetCharPressed();
         }
-
-        if(buffer.length() == 5 && IsKeyPressed(KEY_ENTER)){
-            wordly.wordChecker(buffer);
-            buffer.clear();
+        if(IsKeyPressed(KEY_BACKSPACE)) {
+            wordly.backspace();
+        }
+        if(IsKeyPressed(KEY_ENTER)){
+            if(wordly.wordChecker()) break;
         }
         EndDrawing();
         
 }
 CloseWindow();
-std::cout << buffer << std::endl;
     return 0;
 } 
