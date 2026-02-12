@@ -14,8 +14,12 @@ set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(vendor/raylib)
-
-add_executable(${PROJECT_NAME} main.cpp)
+set(SOURCES
+    main.cpp        
+    wordly.cpp
+    button.cpp
+)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE vendor/raylib/src)
