@@ -85,6 +85,10 @@ bool Wordly::isEmpty(std::string_view str) const{
                 buffer = buffer.substr(getLength("TEXT_COLOR="));
                 this->config.text_color = applyColor(buffer);
             }
+            else if((toFind = buffer.find("HARD_MODE=")) != std::string::npos){
+                buffer = buffer.substr(getLength("HARD_MODE="));
+                this->config.hardMode = buffer == "TRUE";
+            }
         }
     }
     void Wordly::drawError(void) const {
@@ -94,8 +98,16 @@ bool Wordly::isEmpty(std::string_view str) const{
       bool Wordly::wordChecker(void) {
             if(!lengthChecker()) return false;
             std::string toCheck;
-         for(auto & c : history[activeY]) {
+         for(const auto & c : history[activeY]) {
             toCheck += c.c;
+         }
+         if(this->config.hardMode) {
+            for(const char &c : this->mustUsedChars) {
+                if(toCheck.find(c) == std::string::npos) {
+                    renderErrorMessage = true;
+                    return false;
+                }
+            }
          }
          if(!dictionary.contains(toCheck)) {
             renderErrorMessage = true;
@@ -104,9 +116,21 @@ bool Wordly::isEmpty(std::string_view str) const{
          renderErrorMessage = false;
         size_t idx = 0;
         for(auto & c : history[activeY]) {
-            if(this->word.find(c.c) == std::string::npos) c.type = NOT_IN;
-            else if(this->word[idx] == c.c) c.type  = CORRECT_POS;
-            else c.type = INCORRECT_POS;
+            if(this->word.find(c.c) == std::string::npos) {
+                c.type = NOT_IN;
+            }
+            else if(this->word[idx] == c.c) {
+                 c.type  = CORRECT_POS;
+                 if(this->config.hardMode) {
+                    this->mustUsedChars.insert(c.c);
+                 }
+            }
+            else  {
+                c.type = INCORRECT_POS;
+                 if(this->config.hardMode) {
+                    this->mustUsedChars.insert(c.c);
+                 }
+            }
             idx++;
         }
         activeX = 0;

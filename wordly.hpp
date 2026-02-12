@@ -15,7 +15,6 @@ enum Type {CORRECT_POS, INCORRECT_POS, NOT_IN};
 struct Character {
     char c;
 Type type;
-
 Character(char ch, Type t) : c(ch),type(t) {}
 Character() : c(' '), type(NOT_IN) {}
 };
@@ -24,7 +23,8 @@ struct Config {
 Color bg_color;
 Color grid_color;
 Color text_color;
-Config() : bg_color(BLACK), grid_color(GREEN), text_color(GREEN) {}
+bool hardMode;
+Config() : bg_color(BLACK), grid_color(GREEN), text_color(GREEN), hardMode(false) {}
 };
 
 class Wordly {
@@ -40,6 +40,7 @@ class Wordly {
     bool gameOver = false;
     std::string word;
     bool userWon;
+    std::unordered_set<char> mustUsedChars;
     bool isEmpty(std::string_view str) const;
 
     bool handleInput(std::string_view word) const;
