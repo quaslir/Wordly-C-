@@ -94,8 +94,8 @@ bool Wordly::isEmpty(std::string_view str) const{
             }
         }
     }
-    void Wordly::drawError(void) const {
-        DrawText("This word does not exists in our database", 40, 580, 20, RED);
+    void Wordly::drawError(const std::string & msg) const {
+        DrawText(msg.c_str(), 40, 580, 20, RED);
     }
 
       bool Wordly::wordChecker(void) {
@@ -108,11 +108,16 @@ bool Wordly::isEmpty(std::string_view str) const{
             for(const char &c : this->mustUsedChars) {
                 if(toCheck.find(c) == std::string::npos) {
                     renderErrorMessage = true;
+                    errorMessage = "You must use ";
+                    errorMessage += " letter";
+                    errorMessage += c;
+                    errorMessage += " in your word";
                     return false;
                 }
             }
          }
          if(!dictionary.contains(toCheck)) {
+            errorMessage = "This word does not exists in our database";
             renderErrorMessage = true;
             return false;
          }
@@ -142,6 +147,14 @@ bool Wordly::isEmpty(std::string_view str) const{
         }  
         attempts++;
         if(toCheck == word) {
+            auto current = usersHistory.getValue<int>("current_streak");
+            usersHistory.updateValue<std::string>("current_streak", std::to_string(current.value() + 1));
+            auto best = usersHistory.getValue<int>("best_streak");
+            if(current.has_value() && best.has_value()) {
+                if(current.value() + 1 > best.value()) {
+                    usersHistory.updateValue<std::string>("best_streak", std::to_string(current.value() + 1));
+                }
+            }
             auto x  = usersHistory.getValue<int>("total_games");
             auto y = usersHistory.getValue<int>("wins");
             if(x.has_value()) {
@@ -151,11 +164,21 @@ bool Wordly::isEmpty(std::string_view str) const{
                 usersHistory.updateValue<std::string>("wins",std::to_string(y.value() + 1));
             }
             gameOver = true;
+            usersHistory.stringify();
 
         }
         else if(attempts == 6) {
             auto x  = usersHistory.getValue<int>("total_games");
             auto y = usersHistory.getValue<int>("losses");
+            auto current = usersHistory.getValue<int>("current_streak");
+            usersHistory.updateValue<std::string>("current_streak", "0");
+            auto best = usersHistory.getValue<int>("best_streak");
+            if(current.has_value() && best.has_value()) {
+                if(current.value() > best.value()) {
+                    usersHistory.updateValue<std::string>("best_streak", std::to_string(current.value()));
+                }
+
+            }
             if(x.has_value()) {
                 usersHistory.updateValue<std::string>("total_games",std::to_string(x.value() + 1));
             }
@@ -163,6 +186,7 @@ bool Wordly::isEmpty(std::string_view str) const{
                 usersHistory.updateValue<std::string>("losses",std::to_string(y.value() + 1));
             }
             gameOver = true;
+            usersHistory.stringify();
         }
          userWon = toCheck == word; 
         return toCheck == word;
@@ -194,7 +218,7 @@ bool Wordly::isEmpty(std::string_view str) const{
     }
 
     if(renderErrorMessage) {
-        drawError();
+        drawError(errorMessage);
     }
 }
 
@@ -240,6 +264,9 @@ void Wordly::gameOverScreenRenderer(void) {
         activeX = 0;
         activeY = 0;
         attempts = false;
+        errorMessage = "";
+        renderErrorMessage = false;
+        mustUsedChars.clear();
         getRandomWord();
     }
 
@@ -251,7 +278,7 @@ void Wordly::gameOverScreenRenderer(void) {
         std::exit(0);
     }
 
-    DrawText("Statistics", 25, 150, 25, this->config.text_color);
+    DrawText("Statistics:", 25, 150, 25, this->config.text_color);
     
     auto x = usersHistory.getValue<int>("total_games");
     if(x.has_value()) {
@@ -272,7 +299,20 @@ void Wordly::gameOverScreenRenderer(void) {
     std::string lost = "Losses: " + std::to_string(lostNumber);
         DrawText(lost.c_str(), 25, 240, 25, this->config.text_color);
     }
+
+    x = usersHistory.getValue<int>("current_streak");
+    if(x.has_value()) {
+    int currentNumber = x.value();
+    std::string current = "Current streak: " + std::to_string(currentNumber);
+        DrawText(current.c_str(), 25, 270, 25, this->config.text_color);
+    }
     
+     x = usersHistory.getValue<int>("best_streak");
+    if(x.has_value()) {
+    int bestNumber = x.value();
+    std::string best = "Best streak: " + std::to_string(bestNumber);
+        DrawText(best.c_str(), 25, 300, 25, this->config.text_color);
+    }
     
    
 }

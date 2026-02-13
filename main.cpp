@@ -27,7 +27,6 @@ int main(int argc, char * argv[]) {
         }
         EndDrawing();
 }
-wordly.usersHistory.stringify();
 CloseWindow();
     return 0;
 } 

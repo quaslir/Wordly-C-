@@ -39,6 +39,7 @@ class Wordly {
     int activeX = 0;
     int activeY = 0;
     bool renderErrorMessage = false;
+    std::string errorMessage = "";
     bool gameOver = false;
     std::string word;
     bool userWon;
@@ -63,7 +64,7 @@ class Wordly {
     size_t getLength(const std::string & str) const;
 
     void readConfig(void);
-    void drawError(void) const;
+    void drawError(const std::string & msg) const;
     void initHistory(void);
 
     public :
