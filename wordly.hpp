@@ -44,6 +44,8 @@ class Wordly {
     std::string word;
     bool userWon;
     std::unordered_set<char> mustUsedChars;
+    float shakeTimer = 0.0f;
+    float shakeIntensity = 10.f;
     bool isEmpty(std::string_view str) const;
 
     bool handleInput(std::string_view word) const;

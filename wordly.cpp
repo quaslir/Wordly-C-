@@ -119,6 +119,7 @@ bool Wordly::isEmpty(std::string_view str) const{
          if(!dictionary.contains(toCheck)) {
             errorMessage = "This word does not exists in our database";
             renderErrorMessage = true;
+            shakeTimer = 0.5f;
             return false;
          }
          renderErrorMessage = false;
@@ -196,12 +197,18 @@ bool Wordly::isEmpty(std::string_view str) const{
     DrawText("Wordly-C++",125,20,50,config.text_color);
     if(!gameOver) {
     std::string buf;
+    float offset = 0.f;
+    if(shakeTimer > 0) {
+        shakeTimer -= GetFrameTime();
+        offset = sinf(shakeTimer * 60.f) * shakeIntensity * (shakeTimer / 0.5f);
+    }
        for(size_t i = 0; i < 6; i++) {
+        float currentRowOffset = i == activeY ? offset : 0.0f;
         for(size_t j = 0; j < 5; j++) {
             buf.clear();
             auto c = this->history[i][j];
             buf += c.c;
-        float calculateX = (float) ((j * 70 * 1.1) + 75);
+        float calculateX = (float) ((j * 70 * 1.1) + 75) + currentRowOffset;
         float calculateY =  (float) ((i * 70 * 1.1) + 100);
         Rectangle box = {(float) calculateX,calculateY, 70, 70};
             Vector2 textSize = MeasureTextEx(GetFontDefault(), buf.c_str(), 40.f, 2);
