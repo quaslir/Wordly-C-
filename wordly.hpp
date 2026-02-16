@@ -86,14 +86,7 @@ class Wordly {
             Config config;
         bool wordChecker(void);
 
-    Wordly(std::istream & s) : ss(s) {
-        this->parseFile();
-        this->getRandomWord();
-        this->readConfig();
-        this->initHistory();
-        this->initKeyboard();
-        mainTimer.start();
-    }
+    Wordly(std::istream & s); 
 
  void draw(void);
 void autoBotPlay(void);

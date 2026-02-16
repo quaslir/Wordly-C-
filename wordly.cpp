@@ -1,6 +1,14 @@
 #include "wordly.hpp"
 std::random_device rd;
 std::mt19937 gen(rd());
+Wordly::Wordly(std::istream & s) : ss(s) {
+        this->parseFile();
+        this->getRandomWord();
+        this->readConfig();
+        this->initHistory();
+        this->initKeyboard();
+        mainTimer.start();
+}
 bool Wordly::isEmpty(std::string_view str) const{
         return str.empty() || str.find_first_not_of(" \t\r\n") == std::string::npos;
     }
@@ -308,6 +316,7 @@ Button Wordly::drawBtn(const Rectangle & box, const std::string & text, const Co
     return btn;
 }
 void Wordly::gameOverScreenRenderer(void) {
+    mainTimer.stop();
     DrawRectangle(0,0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, 0.5f));
     Rectangle panel = {40, 60, (float) GetScreenWidth() - 80, (float) GetScreenHeight() - 120};
 

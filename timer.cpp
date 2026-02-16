@@ -20,6 +20,7 @@ active = true;
 }
 
 void Timer::update(void) {
+    if(!active) return;
     if(seconds >= 60) {
         minutes++;
         seconds -= 60;
@@ -28,6 +29,9 @@ void Timer::update(void) {
 }
 
 std::string Timer::getCurrentTime(void) const {
-if(!active) return "";
 return std::format("{:02}:{:02}", (int) minutes, (int) seconds);
+}
+
+void Timer::stop(void) {
+    active = false;
 }

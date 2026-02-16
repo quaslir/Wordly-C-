@@ -13,6 +13,6 @@ class Timer {
     float getSeconds(void) const;
     void update(void);
     void start(void);
-
+    void stop(void);
     std::string getCurrentTime(void) const;
 };
