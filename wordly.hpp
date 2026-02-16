@@ -80,6 +80,7 @@ class Wordly {
     void drawError(const std::string & msg) const;
     void initHistory(void);
     void drawTimer(void) const;
+    void drawGuessDistribution(const Rectangle & rec) const;
     ParserJSON usersHistory {"../history.json"};
 
     public :

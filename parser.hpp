@@ -451,6 +451,11 @@ class ParserJSON {
         if(!rs.has_value()) return;
        file << recursiveStringify(*this);
     }
+        std::string toString(void) {
+            std::stringstream ss;
+       ss << recursiveStringify(*this);
+       return ss.str();
+    }
     std::string recursiveStringify(const ParserJSON & ps, int level = 1) {
         std::string indent(level * 2, ' ');
         std::string result = "{\n";
@@ -564,9 +569,6 @@ class ParserJSON {
         return ps;
     }
     ParserJSON() {}
-    void assignReadFile(const std::string & name ) {
-        this->filename = name;
-    }
     void listKeys(void) const { 
         if(!rs.has_value()) return;
         for(const auto &x : rs.value()) {

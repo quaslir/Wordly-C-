@@ -202,6 +202,16 @@ for(int i = 0; i < layout.size(); i++) {
             if(y.has_value()) {
                 usersHistory.updateValue<std::string>("wins",std::to_string(y.value() + 1));
             }
+            auto guessDistribution = usersHistory.getObject("guess_distribution");
+            if(guessDistribution.has_value()) {
+                auto currentValue =  guessDistribution.value().getValue<int>(std::to_string(attempts));
+                if(currentValue.has_value()) {
+                    guessDistribution.value().updateValue<std::string>(std::to_string(attempts), std::to_string(currentValue.value() + 1));
+                    usersHistory.updateValue<std::string>("guess_distribution", guessDistribution->toString());
+                }
+                
+            }
+            
             pendingGameOver = true;
             timer = 2.0f;
             usersHistory.stringify();
@@ -225,12 +235,6 @@ for(int i = 0; i < layout.size(); i++) {
             if(y.has_value()) {
                 usersHistory.updateValue<std::string>("losses",std::to_string(y.value() + 1));
             }
-            for(auto x : history) {
-                for(auto y : x) {
-                    std::cout << y.c;
-                }
-                std::cout << std::endl;
-            }
             
             pendingGameOver = true;
             timer = 2.0f;
@@ -242,6 +246,43 @@ for(int i = 0; i < layout.size(); i++) {
     void Wordly::drawTimer(void) const {
         std::string text = mainTimer.getCurrentTime();
         DrawText(text.c_str(), 465, 25, 23, GREEN);
+    }
+    void Wordly::drawGuessDistribution(const Rectangle & rec) const {
+        int startY = rec.y + 220;
+        int maxWidth = GetScreenWidth();
+        int maxWins = 0;
+        auto distribution = usersHistory.getObject("guess_distribution");
+
+        if(distribution.has_value()) {
+            for(int i = 1; i <= 6; i++) {
+                auto current = distribution->getValue<int>(std::to_string(i));
+                if(current.has_value()) {
+                    if(current.value() > maxWins) maxWins = current.value();
+                }
+            }
+
+            for(int i = 1; i <= 6; i++) {
+                 auto current = distribution->getValue<int>(std::to_string(i));
+                if(current.has_value()) {
+                    int val = current.value();
+                    float barW = 20;
+                    if(current.value() != 0) {
+                      barW = 25.0f + ((float) val /  maxWins) * (rec.width - 100.0f);
+                    }
+                    Color barC = (attempts == i) ? GREEN : DARKGRAY;
+
+                    DrawText(std::to_string(i).c_str(), rec.x + 20, startY + (i * 30),20,WHITE);
+                    DrawRectangle(rec.x + 50, startY +(i * 30), (int) barW, 25, barC);
+                    DrawText(std::to_string(val).c_str(), rec.x + 50 + (int) barW - 20,
+                startY + (i * 30) + 4, 18, WHITE);
+
+                }
+            }
+        }
+
+
+
+
     }
  void Wordly::draw(void) {
     mainTimer.update();
@@ -317,6 +358,7 @@ Button Wordly::drawBtn(const Rectangle & box, const std::string & text, const Co
 }
 void Wordly::gameOverScreenRenderer(void) {
     mainTimer.stop();
+    
     DrawRectangle(0,0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, 0.5f));
     Rectangle panel = {40, 60, (float) GetScreenWidth() - 80, (float) GetScreenHeight() - 120};
 
@@ -340,7 +382,7 @@ void Wordly::gameOverScreenRenderer(void) {
             DrawText(label.c_str(), x, statY + 35, 12, LIGHTGRAY);
         }
     };
-
+    drawGuessDistribution(panel);
     drawStatRow("Total games", "total_games", panel.x + 30);
     drawStatRow("Wins", "wins", panel.x + 125);
     drawStatRow("Losses", "losses", panel.x + 190);
