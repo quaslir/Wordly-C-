@@ -58,7 +58,7 @@ class Wordly {
     float botTimer = 0.0f;
     Timer mainTimer;
     bool isEmpty(std::string_view str) const;
-
+    void initHistoryFile(void);
     bool handleInput(std::string_view word) const;
 
         void initKeyboard(void);
