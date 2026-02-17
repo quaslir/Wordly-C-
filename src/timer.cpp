@@ -1,10 +1,10 @@
 #include "timer.hpp"
 
 float Timer::getMins(void) const {
-    return active ? this->minutes : 0.0f;
+    return this->minutes;
 }
 float Timer::getSeconds(void) const {
-   return active ? this->seconds : 0.0f;
+   return this->seconds;
 }
 
 Timer::Timer() {
