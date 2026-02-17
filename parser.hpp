@@ -342,7 +342,7 @@ class ParserJSON {
                this->normalize(value);
         }
 
-        if(value.back() == ',') value.pop_back();
+        if(!value.empty() && value.back() == ',') value.pop_back();
         this->trim(value);
         if(!value.empty()) {
             if(value.front() == '{' || value.front() == '[') {

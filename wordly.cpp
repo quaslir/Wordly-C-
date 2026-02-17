@@ -4,10 +4,10 @@ std::mt19937 gen(rd());
 Wordly::Wordly(std::istream & s) : ss(s) {
     this->initHistoryFile();
         this->parseFile();
-        this->getRandomWord();
         this->readConfig();
         this->initHistory();
         this->initKeyboard();
+                this->getRandomWord();
         mainTimer.start();
 }
 bool Wordly::isEmpty(std::string_view str) const{
@@ -70,7 +70,7 @@ for(int i = 0; i < layout.size(); i++) {
         this->usersHistory.parse();
     }
     void Wordly::getRandomWord(void)  {
-        std::uniform_int_distribution<> dis(0, rs.size());
+        std::uniform_int_distribution<> dis(0, rs.size() - 1);
          this->word = rs[dis(gen)];
          std::cout << word << std::endl;
     }
@@ -82,6 +82,9 @@ for(int i = 0; i < layout.size(); i++) {
             rs.push_back(buffer);
             dictionary.insert(buffer);
          }
+         std::cout << "Loaded words: " << dictionary
+        .size() << std::endl;
+
     }
     bool Wordly::lengthChecker(void) const {
         for(const auto &c : history[activeY]) {
@@ -319,7 +322,7 @@ for(int i = 0; i < layout.size(); i++) {
     DrawText("Wordly-C++",115,20,50,config.text_color);
     if(!gameOver) {
     std::string buf;
-    float offset = 0.f;
+    float offset = 0.0f;
     if(pendingGameOver) {
         timer -= GetFrameTime();
 
@@ -327,6 +330,11 @@ for(int i = 0; i < layout.size(); i++) {
             pendingGameOver = false;
             gameOver = true;
             timer  =0;
+        }
+    }
+    else {
+        if(this->config.autoplay) {
+            autoBotPlay();
         }
     }
     if(shakeTimer > 0) {

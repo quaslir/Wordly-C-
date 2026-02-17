@@ -11,7 +11,7 @@ int main(int argc, char * argv[]) {
         wordly.draw();
         if(autoplay) {
 
-            wordly.autoBotPlay();
+            //wordly.autoBotPlay();
         } else {
         int key = GetCharPressed();
         while(key > 0) {
