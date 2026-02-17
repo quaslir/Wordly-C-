@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <unordered_set>
 #include <algorithm>
-#include "parser.hpp"
+#include "../parser/parser.hpp"
 #include "keyboard.hpp"
 #include <map>
 #include "timer.hpp"

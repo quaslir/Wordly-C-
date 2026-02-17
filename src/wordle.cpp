@@ -1,4 +1,4 @@
-#include "wordly.hpp"
+#include "wordle.hpp"
 std::random_device rd;
 std::mt19937 gen(rd());
 Wordly::Wordly(std::istream & s) : ss(s) {
@@ -333,7 +333,7 @@ for(int i = 0; i < layout.size(); i++) {
  void Wordly::draw(void) {
     mainTimer.update();
     drawTimer();
-    DrawText("Wordly-C++",115,20,50,config.text_color);
+    DrawText("Wordle-Cpp",115,20,50,config.text_color);
     if(!gameOver) {
     std::string buf;
     float offset = 0.0f;
@@ -418,7 +418,7 @@ void Wordly::gameOverScreenRenderer(void) {
     if(userWon) {
     DrawText("WELL DONE!", panel.x + 20, panel.y + 20, 32, GREEN); 
     std::string usersTime = this->mainTimer.getCurrentTime();
-    std::string text = "You guessed the word in ";
+    std::string text = std::string("You guessed the word ") + "\"" + this->word + "\"\n" + "in ";
     float minutes = this->mainTimer.getMins();
     float seconds = this->mainTimer.getSeconds();
     if(minutes) {
@@ -434,7 +434,7 @@ void Wordly::gameOverScreenRenderer(void) {
     DrawText(text.c_str(), panel.x + 20, panel.y + 60, 20, GREEN);
     } else {
         DrawText("NEXT TIME...", panel.x + 20, panel.y + 20, 32, RED);
-        std::string str = "WORD WAS: " + this->word;
+        std::string str = std::string("WORD WAS: ") + "\"" + this->word + "\"";
         DrawText(str.c_str(), panel.x + 20, panel.y + 60, 20, LIGHTGRAY);  
     }
     

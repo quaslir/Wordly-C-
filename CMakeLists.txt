@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Wordly-C++)
+project(Wordle-Cpp)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,7 +16,7 @@ set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 add_subdirectory(vendor/raylib)
 set(SOURCES
     src/main.cpp        
-    src/wordly.cpp
+    src/wordle.cpp
     src/button.cpp
     src/keyboard.cpp
     src/timer.cpp
