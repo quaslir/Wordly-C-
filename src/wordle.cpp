@@ -1,8 +1,57 @@
 #include "wordle.hpp"
 std::random_device rd;
 std::mt19937 gen(rd());
+
+int Wordly::centerTextByX(const std::string & text, int fontSize, int width, int marginX = 0) const {
+int textWidth = MeasureText(text.c_str(), fontSize);
+
+return marginX + (width - textWidth) / 2;
+}
+
+void Wordly::drawLogo(void) const {
+    int x = centerTextByX("WORDLE", 50, GetScreenWidth());
+    DrawText("WORDLE", x, 10, 50, VIOLET);
+}
+
+void Wordly::drawFrontScreen(void) {
+    drawLogo();
+    Rectangle rec = {160, 200, 200, 30};
+    Rectangle rec2 = rec;
+    rec2.y += 40;
+    Rectangle rec3 = rec2;
+    rec3.y += 40;
+    Rectangle rec4 = rec3;
+    rec4.y += 40;
+    static Color dailyChColor = GREEN;
+    static Color practiceColor = GREEN;
+    static Color BotShowCaseColor = GREEN;
+    static Color exitColor = GREEN;
+    Button dailyCh = drawBtn(rec, "Daily challenge", dailyChColor);
+    Button practice = drawBtn(rec2, "Practice mode", practiceColor);
+    Button BotShowCase = drawBtn(rec3, "Autoplay showcase", BotShowCaseColor);
+    Button exit = drawBtn(rec4, "Exit", exitColor);
+    dailyChColor = dailyCh.checkHover(GetMousePosition()) ? DARKGREEN : GREEN;
+    practiceColor = practice.checkHover(GetMousePosition()) ? DARKGREEN : GREEN;
+    BotShowCaseColor = BotShowCase.checkHover(GetMousePosition()) ? DARKGREEN : GREEN;
+    exitColor = exit.checkHover(GetMousePosition()) ? DARKGREEN : GREEN;
+
+    if(exit.checkClick(GetMousePosition())) {
+        std::exit(0);
+    }
+    else if(dailyCh.checkClick(GetMousePosition())) {
+        state = DAILY_CHALLENGE;
+    }
+}
+
 Wordly::Wordly(std::istream & s) : ss(s) {
+    this->state = MAIN_MENU;
     this->initHistoryFile();
+     this->initHistory();
+    if(usersHistory.exists("username")) {
+        username = usersHistory.getValue<std::string>("username").value();
+        username.erase(0,username.find_first_not_of(" \t\r\n"));
+        username.erase(username.find_last_not_of(" \t\r\n") + 1, username.length() - 1);
+    }
         this->parseFile();
         try {
             this->readConfig();
@@ -10,7 +59,7 @@ Wordly::Wordly(std::istream & s) : ss(s) {
             std::cerr << err.what() << std::endl;
         }
         
-        this->initHistory();
+       
         this->initKeyboard();
                 this->getRandomWord();
         mainTimer.start();
@@ -332,9 +381,10 @@ for(int i = 0; i < layout.size(); i++) {
 
     }
  void Wordly::draw(void) {
+    if(state == DAILY_CHALLENGE || state == PRACTICE) {
     mainTimer.update();
     drawTimer();
-    DrawText("Wordle-Cpp",115,20,50,config.text_color);
+    drawLogo();
     if(!gameOver) {
     std::string buf;
     float offset = 0.0f;
@@ -385,7 +435,10 @@ for(int i = 0; i < layout.size(); i++) {
         drawError(errorMessage);
     }
 }
-
+else {
+    drawFrontScreen();
+}
+ }
 void Wordly::updateCurrentWord(const char & c) {
 if(activeX < 5 && activeY < 6) {
 history[activeY][activeX] = Character(c, NOT_IN);
@@ -402,7 +455,7 @@ void Wordly::backspace(void) {
 
 }
 Button Wordly::drawBtn(const Rectangle & box, const std::string & text, const Color & color) const{
-    Button btn (box, PINK, text);
+    Button btn (box, color, text);
 
     DrawRectangle(btn.btn.x, btn.btn.y, btn.btn.width, btn.btn.height, btn.color);
     DrawText(btn.text.c_str(),btn.btn.x + 10, btn.btn.y + 5, 20, BLACK);

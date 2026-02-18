@@ -35,7 +35,12 @@ bool autoplay;
 Config() : bg_color(BLACK), grid_color(GREEN), text_color(GREEN), hardMode(false), autoplay(false) {}
 };
 
-
+enum gameState_t {
+    MAIN_MENU,
+    AUTOPLAY,
+    DAILY_CHALLENGE,
+    PRACTICE
+};
 class Wordly {
     private :
     std::unordered_set<std::string> dictionary;
@@ -58,12 +63,14 @@ class Wordly {
     bool pendingGameOver = false;
     float botTimer = 0.0f;
     Timer mainTimer;
+    gameState_t state;
+    std::string username;
     bool isEmpty(std::string_view str) const;
     void initHistoryFile(void);
     bool handleInput(std::string_view word) const;
 
         void initKeyboard(void);
-
+    int centerTextByX(const std::string & text, int fontSize, int width, int marginX) const;
     void getRandomWord(void);
     void writeKey(void);
     void parseFile(void);
@@ -83,7 +90,8 @@ class Wordly {
     void drawTimer(void) const;
     void drawGuessDistribution(const Rectangle & rec) const;
     ParserJSON usersHistory {"../history.json"};
-
+    void drawFrontScreen(void);
+    void drawLogo(void) const;
     public :
             Config config;
         bool wordChecker(void);

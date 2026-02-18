@@ -7,7 +7,7 @@ struct Button {
     bool isClicked;
 
     bool checkClick(const Vector2 & pos) const;
-    
+    bool checkHover(const Vector2 & pos) const;
     Button (const Rectangle & rec, const Color & c, const std::string & t) :
     btn(rec), color(c), text(t), isClicked(false) {}
 
