@@ -8,9 +8,26 @@ return marginX + (width - textWidth) / 2;
 
 void Wordly::drawLogo(void) const {
     const std::string text = "WORDLE";
-    int x = centerTextByX(text, 50, GetScreenWidth());
-    DrawText(text.c_str(), x + 2, 32, 50, BLACK);
-    DrawText(text.c_str(), x, 30, 50, RAYWHITE);
+    int space = 10;
+    int squareSize = 50;
+        int x = (GetScreenWidth() / 2) - (((6 * squareSize) + (5 * space)) / 2);
+        int y = 30;
+        int fontSize = 40;
+    static std::string buffer;
+    Color squareColor = {83, 141, 78, 255};
+    for(int i = 0; i < text.size(); i++) {
+        buffer.clear();
+        buffer += text[i];
+        int currentX = x + (i * (squareSize + space));
+   DrawRectangle(currentX, 30, squareSize, squareSize, squareColor);
+   int textWidth = MeasureText(buffer.c_str(), fontSize);
+
+   int textX  = currentX + (squareSize - textWidth) / 2;
+   int textY = y + (squareSize - fontSize) / 2;
+      DrawText(buffer.c_str(), textX + 2, textY + 2, fontSize, BLACK);
+    DrawText(buffer.c_str(), textX, textY, fontSize, RAYWHITE);
+    } 
+    
 }
 
 void Wordly::drawFrontScreen(void) {
