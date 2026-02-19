@@ -20,7 +20,8 @@ set(SOURCES
     src/button.cpp
     src/keyboard.cpp
     src/timer.cpp
-    
+    src/wordleDraw.cpp
+    src/wordleUsername.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 

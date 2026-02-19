@@ -39,7 +39,8 @@ enum gameState_t {
     MAIN_MENU,
     AUTOPLAY,
     DAILY_CHALLENGE,
-    PRACTICE
+    PRACTICE,
+    EMPTY_USERNAME
 };
 class Wordly {
     private :
@@ -92,9 +93,11 @@ class Wordly {
     ParserJSON usersHistory {"../history.json"};
     void drawFrontScreen(void);
     void drawLogo(void) const;
+    void setUsername(void);
+    void trim(std::string & text) const;
     public :
-            Config config;
-        bool wordChecker(void);
+    Config config;
+     bool wordChecker(void);
 
     Wordly(std::istream & s); 
 

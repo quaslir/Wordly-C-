@@ -39,8 +39,7 @@ int main(int argc, char * argv[]) {
             wordly.backspace();
         }
         if(IsKeyPressed(KEY_ENTER)){
-            if(wordly.wordChecker()) {
-            }
+        wordly.wordChecker();
         }
     }
         EndDrawing();
