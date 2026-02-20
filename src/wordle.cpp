@@ -258,8 +258,10 @@ for(int i = 0; i < layout.size(); i++) {
                 int totalXP = 1000;
                 totalXP /= attempts;
                 int timeBonus = (mainTimer.getMins() * 60 + mainTimer.getSeconds()) / 10;
-                if(timeBonus > 1) 
+                if(timeBonus > 1) {
                 totalXP /= timeBonus;
+                }
+                this->totalXp = totalXP;
                 if(usersHistory.exists("total_xp")) {
                     usersHistory.updateValue<std::string>("total_xp",
                    std::to_string(usersHistory.getValue<int>("total_xp").value() + totalXP));
@@ -474,4 +476,18 @@ void Wordly::updateDailyChallengeStatus(void) {
     } catch(...) {
         std::cerr << "Json file was corrupted" << std::endl;
     } 
+}
+
+
+void Wordly::clearVariables(void) {
+                gameOver = false;
+                clearHistory();
+                totalXp = 0;
+                activeX = 0;
+                activeY = 0;
+                attempts = 0;
+                errorMessage = "";
+                renderErrorMessage = false;
+                mustUsedChars.clear();
+                initKeyboard();
 }

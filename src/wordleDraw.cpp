@@ -245,21 +245,13 @@ void Wordly::gameOverScreenRenderer(void) {
     drawStatRow("Losses", "losses", panel.x + 190);
     drawStatRow("Current streak", "current_streak", panel.x + 270);
     drawStatRow("Best streak", "best_streak", panel.x + 370);
-   drawTotalXp("200", panel);
+   drawTotalXp(panel);
     Rectangle box = {145, 600, 120, 30};
     std::string text = "Play again";
     Button playAgain = drawBtn(box, text, PINK);
         if(playAgain.checkClick(GetMousePosition())) {
-        gameOver = false;
-        clearHistory();
-        activeX = 0;
-        activeY = 0;
-        attempts = 0;
-        errorMessage = "";
-        renderErrorMessage = false;
-        mustUsedChars.clear();
-        initKeyboard();
-        getRandomWord();
+        clearVariables();
+    getRandomWord();
         mainTimer.start();
     }
 
@@ -268,18 +260,9 @@ void Wordly::gameOverScreenRenderer(void) {
     Button exit = drawBtn(box2, text2, PINK);
 
     if(exit.checkClick(GetMousePosition())) {
+                clearVariables();
                 this->config.autoplay = false;
                 state = MAIN_MENU;
-                gameOver = false;
-                 gameOver = false;
-                clearHistory();
-                activeX = 0;
-                activeY = 0;
-                attempts = 0;
-                errorMessage = "";
-                renderErrorMessage = false;
-                mustUsedChars.clear();
-                initKeyboard();
     }
 }
 
@@ -332,11 +315,11 @@ void Wordly::drawUsername(void) const {
     DrawText(this->username.c_str(), x, y, fontSize, RAYWHITE);
 }
 
-void Wordly::drawTotalXp(const std::string & xp, const Rectangle & panel) const {
+void Wordly::drawTotalXp(const Rectangle & panel) const {
     if(usersHistory.exists("total_xp")) {
         auto x = usersHistory.getValue<std::string>("total_xp");
         if(x.has_value()) {
-            std::string text = std::string("Total XP: ") + x.value() + std::string(" (+ ")  + xp + std::string(" this game)");
+            std::string text = std::string("Total XP: ") + x.value() + std::string(" (+ ")  + std::to_string(this->totalXp) + std::string(" this game)");
             DrawText(text.c_str(), panel.x + 10, panel.y + 400, 20, LIGHTGRAY);
         }
     }

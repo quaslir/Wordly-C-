@@ -68,6 +68,7 @@ class Wordly {
     gameState_t state;
     std::string username;
     bool activeDailyChallenge = true;
+    size_t totalXp = 0;
     bool isEmpty(std::string_view str) const;
     void initHistoryFile(void);
     bool handleInput(std::string_view word) const;
@@ -100,7 +101,8 @@ class Wordly {
     void drawUsername(void) const;
     void setUsername(void);
     void trim(std::string & text) const;
-    void drawTotalXp(const std::string & xp, const Rectangle & panel) const;
+    void drawTotalXp( const Rectangle & panel) const;
+    void clearVariables(void);
     public :
     Config config;
      bool wordChecker(void);
