@@ -3,6 +3,7 @@ std::random_device rd;
 std::mt19937 gen(rd());
 
 Wordly::Wordly(std::istream & s) : ss(s) {
+    loadLeaderboard();
     this->state = MAIN_MENU;
     this->initHistoryFile();
      this->initHistory();

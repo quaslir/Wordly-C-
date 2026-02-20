@@ -16,6 +16,7 @@
 #include <exception>
 #include "textBox.hpp"
 #include <chrono>
+#include <curl/curl.h>
 #define SQUARE_SIZE 65
 #define CELL_SIZE 35
 enum Type {CORRECT_POS, INCORRECT_POS, NOT_IN};
@@ -99,6 +100,7 @@ class Wordly {
     void trim(std::string & text) const;
     void drawTotalXp( const Rectangle & panel) const;
     void clearVariables(void);
+    void loadLeaderboard(void) const;
     public :
     Config config;
      bool wordChecker(void);

@@ -9,6 +9,7 @@ if(APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++")
 endif()
 
+find_package(CURL REQUIRED)
 
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
@@ -24,6 +25,7 @@ set(SOURCES
     src/wordleUsername.cpp
     src/textBox.cpp
     src/drawStats.cpp
+    src/leaderboard.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -31,7 +33,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE vendor/raylib/src)
 
 
-target_link_libraries(${PROJECT_NAME} raylib)
+target_link_libraries(${PROJECT_NAME} raylib CURL::libcurl)
 
 
 if(APPLE) 
