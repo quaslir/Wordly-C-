@@ -13,18 +13,29 @@ Wordly::Wordly(std::istream & s) : ss(s) {
         if(username.empty()) this->state = EMPTY_USERNAME;
     }
     else this->state = EMPTY_USERNAME;
-        this->parseFile();
-        try {
-            this->readConfig();
-        } catch(std::exception & err) {
-            std::cerr << err.what() << std::endl;
-        }
-        
-       if(usersHistory.exists("daily_challenge_active")) {
-        auto x = usersHistory.getValue<bool>("daily_challenge_active");
+        this->parseFile();  
+
+       if(usersHistory.exists("daily_challenge")) {
+
+        auto x = usersHistory.getObject("daily_challenge");
         if(x.has_value()) {
-            activeDailyChallenge = x.value();
+                            
+        auto first = x.value().getValue<bool>("daily_challenge_active");
+        auto second = x.value().getValue<long>("daily_challenge_id");
+        if(first.has_value() && second.has_value()) {
+
+            dailyChallenge.first = first.value();
+            dailyChallenge.second = second.value();
+            if(!dailyChallenge.first) {
+                long current = generateDayId();
+                if(current != dailyChallenge.second) {
+                    dailyChallenge.first = true;
+                    dailyChallenge.second = current;
+                    usersHistory.stringify();
+                }
+            }
         }
+    }
        }
         this->initKeyboard();
            
@@ -47,7 +58,11 @@ void Wordly::initHistoryFile(void) {
     main.insert("current_streak", 0);
     main.insert("wins", 0);
     main.insert("username", "");
-    main.insert("daily_challenge_active", true);
+    main.insert("daily_challenge", "");
+    ParserJSON dailyCh;
+    dailyCh.insert("daily_challenge_active", false);
+    dailyCh.insert("daily_challenge_id", 0);
+    main.updateValue<std::string>("daily_challenge", dailyCh.toString());
     main.insert("total_xp", 0);
     ParserJSON submain;
     submain.insert("1", 0);
@@ -127,56 +142,12 @@ for(int i = 0; i < layout.size(); i++) {
         }
         return GRAY;
     }
-    Color Wordly::applyColor(std::string_view toCheck) const {
-        if(toCheck == "RED") return RED;
-        else if(toCheck == "BLUE") return BLUE;
-        else if(toCheck == "GREEN") return GREEN;
-        else if(toCheck == "YELLOW") return YELLOW;
-        else if(toCheck == "BLACK") return BLACK;
-        else if(toCheck == "PINK") return PINK;
-        else if(toCheck == "VIOLET") return VIOLET;
-        return BLACK;
-    }
     void Wordly::clearHistory(void) {
         std::for_each(history.begin(), history.end(), [] (std::array<Character, 5> & arr) {
             return arr.fill(Character(' ', NOT_IN));
         });
     }
     size_t Wordly::getLength(const std::string & str) const {return str.length();}
-
-    void Wordly::readConfig(void) {
-        std::ifstream config("../src/config.conf");
-        if(!config.is_open()) {
-            throw std::runtime_error("Config file was not found");
-        }
-        std::string buffer;
-
-        while(getline(config, buffer)) {
-            size_t toFind;
-            if((toFind = buffer.find("BG_COLOR=")) != std::string::npos){
-                buffer = buffer.substr(getLength("BG_COLOR="));
-                this->config.bg_color = applyColor(buffer);
-            }
-            else if((toFind = buffer.find("GRID_COLOR=")) != std::string::npos){
-                buffer = buffer.substr(getLength("GRID_COLOR="));
-                this->config.grid_color = applyColor(buffer);
-            }
-             else if((toFind = buffer.find("TEXT_COLOR=")) != std::string::npos){
-                buffer = buffer.substr(getLength("TEXT_COLOR="));
-                this->config.text_color = applyColor(buffer);
-            }
-            else if((toFind = buffer.find("HARD_MODE=")) != std::string::npos){
-                buffer = buffer.substr(getLength("HARD_MODE="));
-                if(buffer == "TRUE" || buffer == "ENABLED") this->config.hardMode = true;
-                else this->config.hardMode  = false;
-            }
-            else if((toFind = buffer.find("AUTOPLAY=")) != std::string::npos){
-                buffer = buffer.substr(getLength("AUTOPLAY="));
-                if(buffer == "TRUE" || buffer == "ENABLED") this->config.autoplay = true;
-                else this->config.autoplay  = false;
-            }
-        }
-    }
     
 
       bool Wordly::wordChecker(void) {
@@ -255,12 +226,12 @@ for(int i = 0; i < layout.size(); i++) {
         }
         else if(toCheck == word) {
             try {
-                int totalXP = 1000;
+               int totalXP = 1000;
                 totalXP /= attempts;
                 int timeBonus = (mainTimer.getMins() * 60 + mainTimer.getSeconds()) / 10;
                 if(timeBonus > 1) {
                 totalXP /= timeBonus;
-                }
+                } 
                 this->totalXp = totalXP;
                 if(usersHistory.exists("total_xp")) {
                     usersHistory.updateValue<std::string>("total_xp",
@@ -349,11 +320,6 @@ void Wordly::backspace(void) {
 
 }
 
-void Wordly::setGameOver(void) {
-    gameOver = true;
-}
-
-
 void Wordly::writeKey(void) {
 for(const auto & x : keyboard) {
     if(x.clickStatus()) {
@@ -364,9 +330,7 @@ for(const auto & x : keyboard) {
         }
         else if(x.c == "ENT") {
             if(activeX == 5) {
-                if(wordChecker()) {
-               setGameOver();
-            }
+                wordChecker();
             } else shakeTimer = 0.5f;
         }
         else if(activeX < 5) {
@@ -380,8 +344,8 @@ bool Wordly::getAutoplayStatus(void) const {
 }
 std::string Wordly::generateTheMostAccurateWord(void) const {
 std::string notInWord;
-std::map<int, char> incorrectPosition;
-std::map<int, char> correct;
+std::unordered_map<int, char> incorrectPosition;
+std::unordered_map<int, char> correct;
 std::vector<std::string> total;
 std::string buffer;
 for(const auto & row : history) {
@@ -458,21 +422,28 @@ target = generateTheMostAccurateWord();
 }
 }
 
-void Wordly::getRandomWordDayChallenge(void) {
+long Wordly::generateDayId(void) const {
     auto now = std::chrono::system_clock::now();
     time_t formatted = std::chrono::system_clock::to_time_t(now);
     
     struct tm * parts = std::localtime(&formatted);
 
-    long id = (parts->tm_year + 1900) * 1000 + (parts->tm_mon + 1) * 100 + parts->tm_mday; 
+    return (parts->tm_year + 1900) * 1000 + (parts->tm_mon + 1) * 100 + parts->tm_mday;
+}
 
+void Wordly::getRandomWordDayChallenge(void) {
+    long id = generateDayId();
     this->word = rs[id % rs.size()];
 }
 
 
 void Wordly::updateDailyChallengeStatus(void) {
     try {
-    usersHistory.updateValue<std::string>("daily_challenge_active", "false");
+        auto dailyCh = usersHistory.getObject("daily_challenge").value();
+    dailyCh.updateValue<std::string>("daily_challenge_active", "false");
+    dailyCh.updateValue<std::string>("daily_challenge_id", std::to_string(generateDayId()));
+    usersHistory.updateValue<std::string>("daily_challenge", dailyCh.toString());
+    dailyChallenge.first = false;
     } catch(...) {
         std::cerr << "Json file was corrupted" << std::endl;
     } 

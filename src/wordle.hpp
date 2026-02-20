@@ -11,7 +11,7 @@
 #include <algorithm>
 #include "../json-parser-c/parser.hpp"
 #include "keyboard.hpp"
-#include <map>
+#include <unordered_map>
 #include "timer.hpp"
 #include <exception>
 #include "textBox.hpp"
@@ -62,12 +62,12 @@ class Wordly {
     float shakeTimer = 0.0f;
     float shakeIntensity = 10.f;
     float timer = 0.0f;
-    bool pendingGameOver = false;
+   bool pendingGameOver = false;
     float botTimer = 0.0f;
     Timer mainTimer;
     gameState_t state;
     std::string username;
-    bool activeDailyChallenge = true;
+     std::pair<bool, long> dailyChallenge;
     size_t totalXp = 0;
     bool isEmpty(std::string_view str) const;
     void initHistoryFile(void);
@@ -84,13 +84,9 @@ class Wordly {
     bool lengthChecker(void) const;
     std::string generateTheMostAccurateWord(void) const;
     Color getColor(const Type & t)const;
-
-    Color applyColor(std::string_view toCheck) const;
-
     void clearHistory(void);
-
+    long generateDayId(void) const;
     size_t getLength(const std::string & str) const;
-    void readConfig(void);
     void drawError(const std::string & msg) const;
     void initHistory(void);
     void drawTimer(void) const;
@@ -118,6 +114,5 @@ void backspace(void);
 Button drawBtn(const Rectangle & box, const std::string & text, const Color & color) const;
 
 void gameOverScreenRenderer(void);
-void setGameOver(void);
 
 };

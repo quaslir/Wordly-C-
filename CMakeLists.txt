@@ -23,6 +23,7 @@ set(SOURCES
     src/wordleDraw.cpp
     src/wordleUsername.cpp
     src/textBox.cpp
+    src/drawStats.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 
