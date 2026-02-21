@@ -10,6 +10,7 @@
 #include <exception>
 #include "textBox.hpp"
 #include <chrono>
+#include <thread>
 #define SQUARE_SIZE 65
 #define CELL_SIZE 35
 enum Type {CORRECT_POS, INCORRECT_POS, NOT_IN};
@@ -106,8 +107,6 @@ void autoBotPlay(void);
 void updateCurrentWord(const char & c);
 bool getAutoplayStatus(void) const;
 void backspace(void);
-
-Button drawBtn(const Rectangle & box, const std::string & text, const Color & color) const;
 
 void gameOverScreenRenderer(void);
 

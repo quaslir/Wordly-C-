@@ -12,7 +12,7 @@ void Wordly::checkUsername(std::string & buffer) {
             state = MAIN_MENU;
             try {
                usersHistory.updateValue<std::string>("username", username);
-               usersHistory.stringify();
+               usersHistory.stringify("../history.json");
             } catch(...) {
                 std::cerr << "Json data was corrupted, could not update username" << std::endl;
             }
@@ -36,7 +36,8 @@ void Wordly::setUsername(void) {
     bool toSubmit = !buffer.empty();
     Color btnColor = toSubmit ? Color{83,141,78, 255} : DARKGRAY;
 
-    Button btn = drawBtn(rec2, "Set username", btnColor);
+    Button btn;
+    btn = btn.drawBtn(rec2, "Set username", btnColor);
 
     if(toSubmit && btn.checkClick(GetMousePosition())) {
             checkUsername(buffer);

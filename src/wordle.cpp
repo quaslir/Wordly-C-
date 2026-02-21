@@ -31,7 +31,7 @@ Wordly::Wordly(std::istream & s) : ss(s) {
                 if(current != dailyChallenge.second) {
                     dailyChallenge.first = true;
                     dailyChallenge.second = current;
-                    usersHistory.stringify();
+                    usersHistory.stringify("../history.json");
                 }
             }
         }
@@ -39,7 +39,9 @@ Wordly::Wordly(std::istream & s) : ss(s) {
        }
         this->initKeyboard();
            
-        mainTimer.start();
+       leaderboard.changeState = [this]() {
+        this->state = MAIN_MENU;
+       };
 }
 bool Wordly::isEmpty(std::string_view str) const{
         return str.empty() || str.find_first_not_of(" \t\r\n") == std::string::npos;
@@ -75,7 +77,7 @@ void Wordly::initHistoryFile(void) {
 
     main.updateValue<std::string>("guess_distribution", submain.toString());
 
-    main.stringify();
+    main.stringify("../history.json");
 }
 
 void Wordly::initKeyboard(void) {
@@ -238,8 +240,12 @@ for(int i = 0; i < layout.size(); i++) {
                 this->totalXp = totalXP;
 
                 if(usersHistory.exists("total_xp")) {
+                    
                     size_t total = usersHistory.getValue<size_t>("total_xp").value() + totalXp;
-                    leaderboard.updateLeaderboard(this->username, total);
+
+                    std::thread([this, &total] {
+                        this->leaderboard.updateLeaderboard(this->username, total);
+                    }).detach();
                     usersHistory.updateValue<std::string>("total_xp",
                    std::to_string(total));
                 }
@@ -272,7 +278,7 @@ for(int i = 0; i < layout.size(); i++) {
             
             pendingGameOver = true;
             timer = 2.0f;
-            usersHistory.stringify();
+            usersHistory.stringify("../history.json");
 
         } catch(...) {
             std::cerr << "history.json file was corrupted, please delete this file" << std::endl;
@@ -301,7 +307,7 @@ for(int i = 0; i < layout.size(); i++) {
             
             pendingGameOver = true;
             timer = 2.0f;
-            usersHistory.stringify();
+            usersHistory.stringify("../history.json");
         } catch(...) {
             std::cerr << "history.json file was corrupted, please delete this file" << std::endl;
         }

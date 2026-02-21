@@ -24,7 +24,8 @@ void Wordly::drawFrontScreen(void) {
         if(!dailyChallenge.first && i == 0) {
             color = DARKGREEN;
         }
-        Button btn = drawBtn(rec, buttons[i], color);
+        Button btn;
+        btn = btn.drawBtn(rec, buttons[i], color);
 
         if(btn.checkClick(GetMousePosition())) {
 
@@ -143,14 +144,6 @@ else {
     drawUsername();
 }
  }
-
-Button Wordly::drawBtn(const Rectangle & box, const std::string & text, const Color & color) const{
-    Button btn (box, color, text);
-
-    DrawRectangle(btn.btn.x, btn.btn.y, btn.btn.width, btn.btn.height, btn.color);
-    DrawText(btn.text.c_str(),btn.btn.x + 10, btn.btn.y + 5, 20, BLACK);
-    return btn;
-}
 
 void Wordly::renderKeyBoard(void) {
 int posY = 8 * SQUARE_SIZE + SQUARE_SIZE / 3;

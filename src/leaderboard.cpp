@@ -1,4 +1,5 @@
 #include "leaderboard.hpp"
+#include "button.hpp"
 size_t leaderboardCallback(void * contents, size_t size, size_t number, std::string * result) {
     size_t totalSize = size * number;
     result->append((char *) contents, totalSize);
@@ -43,26 +44,6 @@ void Leaderboard::loadLeaderboard(void) const {
     curl_easy_cleanup(curl);
 }
 
-void Leaderboard::renderLeaderboard(const std::vector<std::pair<std::string, size_t>> & leaderboard) const {
-    DrawRectangle(0,0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
-    drawLogo();
-
-int x = 10;
-int y = 100;
-    for(int i = 0; i < leaderboard.size(); i++) {
-        DrawText(std::to_string(i + 1).c_str(), x, y, 20, RAYWHITE);
-        x += 30;
-        DrawText(leaderboard[i].first.c_str(), x, y, 20, RAYWHITE);
-
-        x = GetScreenWidth() - 100;
-
-        DrawText(std::to_string((int) leaderboard[i].second).c_str(), x, y, 20, RAYWHITE);
-
-        y += 30;
-        x = 10;
-    }
-}
-
 
 void Leaderboard::updateLeaderboard(const std::string & username, const size_t xp) {
 CURL * curl = curl_easy_init();
@@ -86,4 +67,31 @@ curl_easy_perform(curl);
 
 curl_easy_cleanup(curl);
 
+}
+
+void Leaderboard::renderLeaderboard(const std::vector<std::pair<std::string, size_t>> & leaderboard) const {
+    DrawRectangle(0,0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
+    drawLogo();
+
+int x = 10;
+int y = 100;
+    for(int i = 0; i < leaderboard.size(); i++) {
+        DrawText(std::to_string(i + 1).c_str(), x, y, 20, RAYWHITE);
+        x += 30;
+        DrawText(leaderboard[i].first.c_str(), x, y, 20, RAYWHITE);
+
+        x = GetScreenWidth() - 100;
+
+        DrawText(std::to_string((int) leaderboard[i].second).c_str(), x, y, 20, RAYWHITE);
+
+        y += 30;
+        x = 10;
+    }
+
+    Button btn;
+    Rectangle rec = {20, 400, 120, 30};
+    btn = btn.drawBtn(rec, "Back", LIGHTGRAY);
+    if(btn.checkClick(GetMousePosition())) {
+        changeState();
+    }
 }

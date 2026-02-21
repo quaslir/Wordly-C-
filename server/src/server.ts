@@ -24,7 +24,7 @@ connectDb();
 
 
 app.get("/leaderboard", async(req, res) => {
-return res.json(await User.find().select("username xp"));
+return res.json(await User.find().select("username xp").limit(10));
 });
 
 interface updateXp {
