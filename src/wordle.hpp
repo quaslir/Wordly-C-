@@ -95,19 +95,20 @@ class Wordly {
     void trim(std::string & text) const;
     void drawTotalXp( const Rectangle & panel) const;
     void clearVariables(void);
-    
+    void drawOriginalStateGame(void);
+     void update(void);
     public :
     Config config;
      bool wordChecker(void);
 
     Wordly(std::istream & s); 
 
- void draw(void);
+
 void autoBotPlay(void);
 void updateCurrentWord(const char & c);
 bool getAutoplayStatus(void) const;
 void backspace(void);
-
+void play(void);
 void gameOverScreenRenderer(void);
 
 };

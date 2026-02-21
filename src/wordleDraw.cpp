@@ -7,9 +7,21 @@ return marginX + (width - textWidth) / 2;
 }
 
 
+void drawPattern(void) {
+    int square = 40;
+    int spaces = 10;
+
+    for(int i = 0; i < GetScreenHeight(); i += square + spaces) {
+        for(int j = 0; j < GetScreenWidth(); j += square + spaces) {
+            DrawRectangleLines(j, i, square, square, Fade(GRAY, 0.1f));
+        }
+    }
+}
+
 void Wordly::drawFrontScreen(void) {
     ClearBackground({18, 19, 19, 255});
     drawLogo();
+    drawPattern();
     const int numButtons = 4;
     static const std::vector<std::string> buttons = {"Daily challenge", "Pratice mode", "Autoplay showcase", "Leaderboard", "Exit"};
     float btnW = 280.f;
@@ -18,11 +30,16 @@ void Wordly::drawFrontScreen(void) {
     float startY = 200;
     float spacing = 15;
     for(int i = 0; i < buttons.size(); i++) {
+
         Rectangle rec = {startX, startY + i * (btnH + spacing), btnW, btnH};
         bool isHovered = (CheckCollisionPointRec(GetMousePosition(), rec));
         Color color = isHovered ? Color{106,170,100,255} : Color{83, 141, 78, 255};
         if(!dailyChallenge.first && i == 0) {
-            color = DARKGREEN;
+            color = Fade(WHITE, 0.05f);
+        }
+        if(isHovered) {
+            rec.height += 3;
+            rec.x += 4;
         }
         Button btn;
         btn = btn.drawBtn(rec, buttons[i], color);
@@ -74,79 +91,6 @@ void Wordly::drawTimer(void) const {
         DrawText(text.c_str(), (GetScreenWidth() - x) / 2, 70, fontSize, LIGHTGRAY);
     }
 
- void Wordly::draw(void) {
-    if(state == EMPTY_USERNAME) {
-        drawLogo();
-        setUsername();
-    }
-   else if(state == DAILY_CHALLENGE || state == PRACTICE || state == AUTOPLAY) {
-    mainTimer.update();
-    drawTimer();
-    drawLogo();
-        drawUsername();
-    if(!gameOver) {
-    std::string buf;
-    float offset = 0.0f;
-    if(pendingGameOver) {
-            mainTimer.stop();
-        timer -= GetFrameTime();
-
-        if(timer <= 0) {
-            pendingGameOver = false;
-            gameOver = true;
-            timer  =0;
-        }
-    }
-    else {
-        if(this->config.autoplay) {
-            autoBotPlay();
-        }
-    }
-    if(shakeTimer > 0) {
-        shakeTimer -= GetFrameTime();
-        offset = sinf(shakeTimer * 60.f) * shakeIntensity * (shakeTimer / 0.5f);
-    }
-    int marginX = (GetScreenWidth() - (SQUARE_SIZE * 6)) / 2;
-       for(size_t i = 0; i < 6; i++) {
-        float currentRowOffset = i == activeY ? offset : 0.0f;
-        for(size_t j = 0; j < 5; j++) {
-            buf.clear();
-            auto c = this->history[i][j];
-            buf += c.c;
-        float calculateX = (float) ((j * SQUARE_SIZE * 1.1) + marginX + 15) + currentRowOffset;
-        float calculateY =  (float) ((i * SQUARE_SIZE * 1.1) + 90);
-        Rectangle box = {(float) calculateX,calculateY, SQUARE_SIZE, SQUARE_SIZE};
-            Vector2 textSize = MeasureTextEx(GetFontDefault(), buf.c_str(), 40.f, 2);
-            float textX = box.x + (box.width / 2) - (textSize.x / 2);
-            float textY = box.y + (box.height / 2) - (textSize.y / 2);
-            DrawText(buf.c_str(), (int) textX, (int) textY, 40, getColor(c.type));
-        float thickness = 3.0f;
-
-        DrawRectangleLinesEx(box, thickness, this->config.grid_color);
-       }
-       }
-
-       renderKeyBoard();
-       writeKey();
-    } else {
-        gameOverScreenRenderer();
-    }
-
-    if(renderErrorMessage) {
-        drawError(errorMessage);
-    }
-}
-else if(state == LEADERBOARD) {
-    if(!leaderboard.leaderboardLoaded) {
-    leaderboard.loadLeaderboard();
-    } else leaderboard.renderLeaderboard();
-    
-}
-else {
-    drawFrontScreen();
-    drawUsername();
-}
- }
 
 void Wordly::renderKeyBoard(void) {
 int posY = 8 * SQUARE_SIZE + SQUARE_SIZE / 3;
@@ -195,4 +139,59 @@ void Wordly::drawUsername(void) const {
     Rectangle rec = {(float) x - 10, (float) y - 5, (float) width + 20, (float) fontSize + 10};
     DrawRectangleRounded(rec, 0.5f, 10, ColorAlpha(BLACK, 0.3f));
     DrawText(this->username.c_str(), x, y, fontSize, RAYWHITE);
+}
+
+
+void Wordly::drawOriginalStateGame(void) {
+mainTimer.update();
+    drawTimer();
+    drawLogo();
+        drawUsername();
+    if(!gameOver) {
+    float offset = 0.0f;
+    if(pendingGameOver) {
+            mainTimer.stop();
+        timer -= GetFrameTime();
+
+        if(timer <= 0) {
+            pendingGameOver = false;
+            gameOver = true;
+            timer  =0;
+        }
+    }
+    else {
+        if(this->config.autoplay) {
+            autoBotPlay();
+        }
+    }
+    if(shakeTimer > 0) {
+        shakeTimer -= GetFrameTime();
+        offset = sinf(shakeTimer * 60.f) * shakeIntensity * (shakeTimer / 0.5f);
+    }
+    int marginX = (GetScreenWidth() - (SQUARE_SIZE * 6)) / 2;
+       for(size_t i = 0; i < 6; i++) {
+        float currentRowOffset = i == activeY ? offset : 0.0f;
+        for(size_t j = 0; j < 5; j++) {
+            auto c = this->history[i][j];
+        float calculateX = (float) ((j * SQUARE_SIZE * 1.1) + marginX + 15) + currentRowOffset;
+        float calculateY =  (float) ((i * SQUARE_SIZE * 1.1) + 90);
+        Rectangle box = {(float) calculateX,calculateY, SQUARE_SIZE, SQUARE_SIZE};
+            Vector2 textSize = MeasureTextEx(GetFontDefault(), std::string{c.c}.c_str(), 40.f, 2);
+            float textX = box.x + (box.width / 2) - (textSize.x / 2);
+            float textY = box.y + (box.height / 2) - (textSize.y / 2);
+            DrawText(std::string{c.c}.c_str(), (int) textX, (int) textY, 40, getColor(c.type));
+        float thickness = 3.0f;
+
+        DrawRectangleLinesEx(box, thickness, this->config.grid_color);
+       }
+       }
+
+       renderKeyBoard();
+    } else {
+        gameOverScreenRenderer();
+    }
+
+    if(renderErrorMessage) {
+        drawError(errorMessage);
+    }
 }

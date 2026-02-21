@@ -24,7 +24,7 @@ int main(int argc, char * argv[]) {
     while(!WindowShouldClose()) {
         BeginDrawing();
             ClearBackground(wordly.config.bg_color);
-        wordly.draw();
+       wordly.play();
         if(autoplay) {
         } else {
         int key = GetCharPressed();

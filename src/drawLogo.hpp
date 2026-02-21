@@ -10,6 +10,7 @@ inline void drawLogo(void) {
     static std::string buffer;
     Color squareColor = {83, 141, 78, 255};
     for(int i = 0; i < text.size(); i++) {
+      squareColor = (i % 2 == 0) ? Color{201, 180,88,255} : Color{83, 141, 78, 255};
         buffer.clear();
         buffer += text[i];
         int currentX = x + (i * (squareSize + space));

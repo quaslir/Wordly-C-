@@ -67,7 +67,7 @@ void Wordly::initHistoryFile(void) {
     main.insert("username", "");
     main.insert("daily_challenge", "");
     ParserJSON dailyCh;
-    dailyCh.insert("daily_challenge_active", false);
+    dailyCh.insert("daily_challenge_active", "false");
     dailyCh.insert("daily_challenge_id", 0);
     main.updateValue<std::string>("daily_challenge", dailyCh.toString());
     main.insert("total_xp", 0);
@@ -477,4 +477,56 @@ void Wordly::clearVariables(void) {
                 renderErrorMessage = false;
                 mustUsedChars.clear();
                 initKeyboard();
+}
+
+void Wordly::update(void) {
+if(state == EMPTY_USERNAME) {
+        drawLogo();
+        setUsername();
+        return;
+    }
+    if(!gameOver) {
+    if(pendingGameOver) {
+            mainTimer.stop();
+        timer -= GetFrameTime();
+
+        if(timer <= 0) {
+            pendingGameOver = false;
+            gameOver = true;
+            timer  =0;
+        }
+    }
+    else {
+        if(this->config.autoplay) {
+            autoBotPlay();
+        }
+    }
+    writeKey();
+    
+} else {
+        gameOverScreenRenderer();
+    }
+}
+
+void Wordly::play(void) {
+update();
+if(state == DAILY_CHALLENGE || state == PRACTICE || state == AUTOPLAY) {
+    drawOriginalStateGame();
+}
+else if(state == LEADERBOARD) {
+    if(!leaderboard.leaderboardLoaded) {
+        try {
+    leaderboard.loadLeaderboard();
+        } catch(const std::exception & error) {
+            std::cerr << error.what() << std::endl;
+            state = MAIN_MENU;
+        }
+    } else leaderboard.renderLeaderboard();
+    
+}
+else {
+    drawFrontScreen();
+    drawUsername();
+}
+
 }
