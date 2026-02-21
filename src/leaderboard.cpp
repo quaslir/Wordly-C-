@@ -62,3 +62,28 @@ int y = 100;
         x = 10;
     }
 }
+
+
+void Leaderboard::updateLeaderboard(const std::string & username, const size_t xp) {
+CURL * curl = curl_easy_init();
+
+if(!curl) {
+        throw std::runtime_error("HTTP request failed");
+}
+ParserJSON data;
+data.insert<std::string>("username", username);
+
+data.insert<std::string>("xp", std::to_string((int) xp));
+
+std::string dataFormatted = data.toString();
+struct curl_slist * headers = NULL;
+headers = curl_slist_append(headers, "Content-Type: application/json");
+curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:3000/update-leaderboard");
+curl_easy_setopt(curl, CURLOPT_HTTPHEADER,headers);
+curl_easy_setopt(curl, CURLOPT_POSTFIELDS, dataFormatted.c_str());
+
+curl_easy_perform(curl);
+
+curl_easy_cleanup(curl);
+
+}

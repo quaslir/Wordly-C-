@@ -11,4 +11,6 @@ class Leaderboard {
 
     void loadLeaderboard(void) const;
     void renderLeaderboard(const std::vector<std::pair<std::string, size_t>> & leaderboard) const;
+
+    void updateLeaderboard(const std::string & username, const size_t xp);
 };

@@ -227,6 +227,7 @@ for(int i = 0; i < layout.size(); i++) {
             timer = 2.0f;
         }
         else if(toCheck == word) {
+          
             try {
                int totalXP = 1000;
                 totalXP /= attempts;
@@ -235,9 +236,12 @@ for(int i = 0; i < layout.size(); i++) {
                 totalXP /= timeBonus;
                 } 
                 this->totalXp = totalXP;
+
                 if(usersHistory.exists("total_xp")) {
+                    size_t total = usersHistory.getValue<size_t>("total_xp").value() + totalXp;
+                    leaderboard.updateLeaderboard(this->username, total);
                     usersHistory.updateValue<std::string>("total_xp",
-                   std::to_string(usersHistory.getValue<int>("total_xp").value() + totalXP));
+                   std::to_string(total));
                 }
               if(state == DAILY_CHALLENGE) updateDailyChallengeStatus();
             auto current = usersHistory.getValue<int>("current_streak");
