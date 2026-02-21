@@ -137,7 +137,10 @@ void Wordly::drawTimer(void) const {
     }
 }
 else if(state == LEADERBOARD) {
+    if(!leaderboard.leaderboardLoaded) {
     leaderboard.loadLeaderboard();
+    } else leaderboard.renderLeaderboard();
+    
 }
 else {
     drawFrontScreen();

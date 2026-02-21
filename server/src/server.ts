@@ -21,8 +21,6 @@ const connectDb = async() => {
     }
 }
 connectDb();
-
-
 app.get("/leaderboard", async(req, res) => {
 return res.json(await User.find().select("username xp").limit(10));
 });
@@ -44,7 +42,9 @@ app.post("/update-leaderboard", async(req, res) => {
         });
 
         if(result.matchedCount == 0) {
-            return res.status(404);
+            await User.insertOne({username: username, xp : toNumberXp
+
+            });
         }
 
         return res.status(200);

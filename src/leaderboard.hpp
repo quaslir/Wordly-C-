@@ -9,8 +9,11 @@
 class Leaderboard {
     public :
     std::function<void()> changeState;
-    void loadLeaderboard(void) const;
-    void renderLeaderboard(const std::vector<std::pair<std::string, size_t>> & leaderboard) const;
+    std::function<std::string()> getUsername;
+    bool leaderboardLoaded = false;
+    std::vector<std::pair<std::string, size_t>>  leaderboard;
+    void loadLeaderboard(void);
+    void renderLeaderboard(void);
 
     void updateLeaderboard(const std::string & username, const size_t xp);
 

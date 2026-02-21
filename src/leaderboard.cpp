@@ -7,7 +7,8 @@ size_t leaderboardCallback(void * contents, size_t size, size_t number, std::str
 }
 
 
-void Leaderboard::loadLeaderboard(void) const {
+void Leaderboard::loadLeaderboard(void) {
+    std::cout << "Sending request" << std::endl;
     CURL * curl = curl_easy_init();
     if(!curl) {
         throw std::runtime_error("HTTP request failed");
@@ -29,7 +30,6 @@ void Leaderboard::loadLeaderboard(void) const {
     ps.parse(ss);
             
     size_t size = ps.getSize();
-    std::vector<std::pair<std::string, size_t>> leaderboard;
     for(size_t i = 0; i < size; i++) {
         auto x = ps.getObject(std::to_string(i)).value();
         std::string username = x.getValue<std::string>("username").value();
@@ -40,7 +40,8 @@ void Leaderboard::loadLeaderboard(void) const {
     const std::pair<std::string, size_t> & second) {
         return first.second > second.second;
     });
-    renderLeaderboard(leaderboard);
+    leaderboardLoaded = true;
+
     curl_easy_cleanup(curl);
 }
 
@@ -69,29 +70,49 @@ curl_easy_cleanup(curl);
 
 }
 
-void Leaderboard::renderLeaderboard(const std::vector<std::pair<std::string, size_t>> & leaderboard) const {
+void Leaderboard::renderLeaderboard(void) {
     DrawRectangle(0,0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.8f));
     drawLogo();
+int screenWidth = GetScreenWidth();
+int panelWidth = 450;
+int rowHeight = 45;
+int x = (screenWidth - panelWidth) / 2;
+int y = 150;
+DrawRectangle(x, y - 40, panelWidth, 35, Fade(GRAY, 0.3f));
+DrawText("RANK", x + 10, y - 33, 20, GOLD);
+DrawText("PLAYER", x + 100, y - 33, 20, GOLD);
+DrawText("TOTAL XP", x + panelWidth - 110, y - 33, 20, GOLD);
 
-int x = 10;
-int y = 100;
     for(int i = 0; i < leaderboard.size(); i++) {
-        DrawText(std::to_string(i + 1).c_str(), x, y, 20, RAYWHITE);
-        x += 30;
-        DrawText(leaderboard[i].first.c_str(), x, y, 20, RAYWHITE);
+        Color rowColor  = (leaderboard[i].first == getUsername()) ? GREEN : RAYWHITE;
+        int currentY = y + (i * rowHeight);
 
-        x = GetScreenWidth() - 100;
+        if(i % 2 == 0) {
+            DrawRectangle(x, currentY - 5, panelWidth, rowHeight - 5, Fade(WHITE, 0.05f));
+        }
 
-        DrawText(std::to_string((int) leaderboard[i].second).c_str(), x, y, 20, RAYWHITE);
+        Color rankColor = i == 0 ? GOLD : i == 1 ? LIGHTGRAY : i == 2 ? ORANGE : WHITE;
+        DrawText(TextFormat("%02d", i + 1), x + 15, currentY, 22, i == 0 || i == 1 || i == 2 ? rankColor : rowColor);  
 
-        y += 30;
-        x = 10;
+        DrawText(leaderboard[i].first.c_str(), x + 100, currentY, 22, rowColor);
+        std::string xpStr = std::to_string((int) leaderboard[i].second);
+        int textWidth = MeasureText(xpStr.c_str(), 22);
+
+        DrawText(xpStr.c_str(), x + panelWidth  - 15 - textWidth, currentY, 22, rowColor);
+
     }
 
     Button btn;
-    Rectangle rec = {20, 400, 120, 30};
-    btn = btn.drawBtn(rec, "Back", LIGHTGRAY);
+    Rectangle rec = {(float) screenWidth / 2 - 60, (float) GetScreenHeight() - 80, 120, 40};
+     Color colorBtn = DARKGRAY;
+    if(CheckCollisionPointRec(GetMousePosition(), rec)) {
+        colorBtn = LIGHTGRAY;
+    }
+    btn = btn.drawBtn(rec, "Back", colorBtn);
     if(btn.checkClick(GetMousePosition())) {
+        leaderboardLoaded = false;
+        leaderboard.clear();
         changeState();
     }
+
 }

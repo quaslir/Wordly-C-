@@ -42,6 +42,10 @@ Wordly::Wordly(std::istream & s) : ss(s) {
        leaderboard.changeState = [this]() {
         this->state = MAIN_MENU;
        };
+       
+       leaderboard.getUsername = [this]() {
+        return this->username;
+       };
 }
 bool Wordly::isEmpty(std::string_view str) const{
         return str.empty() || str.find_first_not_of(" \t\r\n") == std::string::npos;
